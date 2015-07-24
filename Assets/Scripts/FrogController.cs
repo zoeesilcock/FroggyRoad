@@ -30,17 +30,12 @@ public class FrogController : MonoBehaviour {
     void Jump(float forceX, float forceZ, float rotation) {
         targetRotationY = rotation;
         gameObject.GetComponent<Rigidbody>().AddForce(forceX, _jumpForceUp, forceZ);
+        grounded = false;
     }
 
     void OnCollisionEnter(Collision collision) {
         if (collision.collider.CompareTag("Ground")) {
             grounded = true;
-        }
-    }
-
-    void OnCollisionExit(Collision collision) {
-        if (collision.collider.CompareTag("Ground")) {
-            grounded = false;
         }
     }
 }
