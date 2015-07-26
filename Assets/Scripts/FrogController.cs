@@ -3,39 +3,50 @@ using System.Collections;
 
 public class FrogController : MonoBehaviour {
 
-    public float _jumpForceUp;
-    public float _jumpForceForward;
-    public float _smoothTurn;
+    public float _smoothRotate;
 
-    private bool grounded;
-    private float targetRotationY;
+    private Animator animator;
+    private Quaternion sourceRotation;
+    private Quaternion targetRotation;
+    private float rotateStartTime;
+    private bool waitingToJump;
+    private bool jumping;
+
+    void Start() {
+        animator = transform.GetComponent<Animator>();
+        targetRotation = transform.parent.rotation;
+    }
 
     void Update() {
-        if (Input.GetAxis("Vertical") > 0.0f && grounded) {
-            Jump(_jumpForceForward, 0, 0);
-        } else if (Input.GetAxis("Vertical") < 0.0f && grounded) {
-            Jump(-_jumpForceForward, 0, 180);
-        } else if (Input.GetAxis("Horizontal") < 0.0f && grounded) {
-            Jump(0, _jumpForceForward, -90);
-        } else if (Input.GetAxis("Horizontal") > 0.0f && grounded) {
-            Jump(0, -_jumpForceForward, 90);
+        if (Input.GetAxis("Vertical") > 0.0f && !jumping) {
+            StartJump(0.0f);
+        } else if (Input.GetAxis("Vertical") < 0.0f && !jumping) {
+            StartJump(180.0f);
+        } else if (Input.GetAxis("Horizontal") < 0.0f && !jumping) {
+            StartJump(-90.0f);
+        } else if (Input.GetAxis("Horizontal") > 0.0f && !jumping) {
+            StartJump(90.0f);
         }
 
-        if (transform.rotation.y != targetRotationY) {
-            Quaternion target = Quaternion.Euler(270, targetRotationY, 0);
-            transform.rotation = Quaternion.Slerp(transform.rotation, target, Time.deltaTime * _smoothTurn);
+        if (Quaternion.Angle(transform.parent.rotation, targetRotation) > 0.4f) {
+            transform.parent.rotation = Quaternion.Slerp(sourceRotation, targetRotation, (Time.time - rotateStartTime) / _smoothRotate);
+        } else if (waitingToJump) {
+            animator.SetTrigger("Jump");
+            waitingToJump = false;
         }
     }
 
-    void Jump(float forceX, float forceZ, float rotation) {
-        targetRotationY = rotation;
-        gameObject.GetComponent<Rigidbody>().AddForce(forceX, _jumpForceUp, forceZ);
-        grounded = false;
+    public void StartJump(float rotationY) {
+        sourceRotation = transform.parent.rotation;
+        targetRotation = Quaternion.Euler(270, rotationY, 0);
+        rotateStartTime = Time.time;
+        waitingToJump = true;
+        jumping = true;
     }
 
-    void OnCollisionEnter(Collision collision) {
-        if (collision.collider.CompareTag("Ground")) {
-            grounded = true;
-        }
+    public void JumpEnded() {
+        transform.parent.position = transform.position;
+        transform.localPosition = Vector3.zero;
+        jumping = false;
     }
 }
