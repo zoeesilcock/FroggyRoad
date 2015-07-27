@@ -31,8 +31,13 @@ public class FrogController : MonoBehaviour {
         if (Quaternion.Angle(transform.parent.rotation, targetRotation) > 0.4f) {
             transform.parent.rotation = Quaternion.Slerp(sourceRotation, targetRotation, (Time.time - rotateStartTime) / _smoothRotate);
         } else if (waitingToJump) {
-            animator.SetTrigger("Jump");
-            waitingToJump = false;
+            if (!Physics.Raycast(transform.position, transform.right, 1)) {
+                animator.SetTrigger("Jump");
+                waitingToJump = false;
+            } else {
+                animator.SetTrigger("JumpFail");
+                waitingToJump = false;
+            }
         }
     }
 
