@@ -12,10 +12,12 @@ public class FrogController : MonoBehaviour {
     private float rotateStartTime;
     private bool waitingToJump;
     private bool jumping;
+    private bool alive;
 
     void Start() {
         animator = transform.GetComponent<Animator>();
         targetRotation = transform.parent.rotation;
+        alive = true;
     }
 
     void Update() {
@@ -31,7 +33,7 @@ public class FrogController : MonoBehaviour {
 
         if (Quaternion.Angle(transform.parent.rotation, targetRotation) > 0.4f) {
             transform.parent.rotation = Quaternion.Slerp(sourceRotation, targetRotation, (Time.time - rotateStartTime) / _smoothRotate);
-        } else if (waitingToJump) {
+        } else if (waitingToJump && alive) {
             if (!Physics.Raycast(transform.position, transform.right, 1, LayerMask.NameToLayer(_layerName))) {
                 animator.SetTrigger("Jump");
                 waitingToJump = false;
@@ -43,6 +45,9 @@ public class FrogController : MonoBehaviour {
     }
 
     public void StartJump(float rotationY) {
+        if (!alive)
+            return;
+
         sourceRotation = transform.parent.rotation;
         targetRotation = Quaternion.Euler(270, rotationY, 0);
         rotateStartTime = Time.time;
@@ -58,11 +63,20 @@ public class FrogController : MonoBehaviour {
 
     void OnTriggerEnter(Collider collider) {
         if (collider.CompareTag("Car")) {
-            Death();
+            StartCoroutine("Death");
         }
     }
 
-    public void Death() {
+    public IEnumerator Death() {
+        animator.StopPlayback();
+
+        transform.localScale = new Vector3(transform.localScale.x, transform.localScale.y, 0.1f);
+        transform.parent.position = new Vector3(transform.parent.position.x, 0.0f, transform.parent.position.z);
+
+        alive = false;
+
+        yield return new WaitForSeconds(5);
+
         Application.LoadLevel("MainScene");
     }
 }
