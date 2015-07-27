@@ -46,6 +46,9 @@ public class RoadController : MonoBehaviour {
 
         Vector3 spawnPosition = new Vector3(transform.position.x - offsetX, transform.position.y, transform.position.z - offsetZ);
         GameObject car = Instantiate(_carPrefab, spawnPosition, rotation) as GameObject;
+        Renderer childRender = car.GetComponentInChildren<Renderer>() as Renderer;
+        childRender.material.color = new Color(Random.value, Random.value, Random.value);
+
         car.GetComponent<CarController>()._speed = speed;
     }
 
