@@ -4,6 +4,7 @@ using System.Collections;
 public class FrogController : MonoBehaviour {
 
     public float _smoothRotate;
+    public string _layerName;
 
     private Animator animator;
     private Quaternion sourceRotation;
@@ -31,7 +32,7 @@ public class FrogController : MonoBehaviour {
         if (Quaternion.Angle(transform.parent.rotation, targetRotation) > 0.4f) {
             transform.parent.rotation = Quaternion.Slerp(sourceRotation, targetRotation, (Time.time - rotateStartTime) / _smoothRotate);
         } else if (waitingToJump) {
-            if (!Physics.Raycast(transform.position, transform.right, 1)) {
+            if (!Physics.Raycast(transform.position, transform.right, 1, LayerMask.NameToLayer(_layerName))) {
                 animator.SetTrigger("Jump");
                 waitingToJump = false;
             } else {
@@ -53,5 +54,15 @@ public class FrogController : MonoBehaviour {
         transform.parent.position = transform.position;
         transform.localPosition = Vector3.zero;
         jumping = false;
+    }
+
+    void OnTriggerEnter(Collider collider) {
+        if (collider.CompareTag("Car")) {
+            Death();
+        }
+    }
+
+    public void Death() {
+        Application.LoadLevel("MainScene");
     }
 }
