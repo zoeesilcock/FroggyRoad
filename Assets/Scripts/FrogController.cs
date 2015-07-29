@@ -34,7 +34,7 @@ public class FrogController : MonoBehaviour {
         if (Quaternion.Angle(transform.parent.rotation, targetRotation) > 0.4f) {
             transform.parent.rotation = Quaternion.Slerp(sourceRotation, targetRotation, (Time.time - rotateStartTime) / _smoothRotate);
         } else if (waitingToJump && alive) {
-            if (!Physics.Raycast(transform.position, transform.right, 1, LayerMask.NameToLayer(_layerName))) {
+            if (!Physics.Raycast(transform.position, transform.right, 1, 1 << LayerMask.NameToLayer(_layerName))) {
                 animator.SetTrigger("Jump");
                 waitingToJump = false;
             } else {
@@ -64,6 +64,9 @@ public class FrogController : MonoBehaviour {
     void OnTriggerEnter(Collider collider) {
         if (collider.CompareTag("Car")) {
             StartCoroutine("Death");
+        } else if (collider.CompareTag("Coin")) {
+            Destroy(collider.gameObject);
+            ApplicationModel._coinCount += 1;
         }
     }
 
