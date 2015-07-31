@@ -11,6 +11,6 @@ public class ScoreController : MonoBehaviour {
     }
 
     void Update() {
-        gameObject.GetComponent<Text>().text = "Points: " + Mathf.Floor(_player.transform.position.x - _startPosition);
+        gameObject.GetComponent<Text>().text = "Distance: " + Mathf.Floor(_player.transform.position.x - _startPosition);
     }
 }
