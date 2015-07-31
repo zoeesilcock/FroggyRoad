@@ -57,7 +57,7 @@ public class LevelController : MonoBehaviour {
             roadCount = 0;
         }
 
-        GameObject section = Instantiate(prefab, new Vector3(lastLevelSection.position.x + 2, lastLevelSection.position.y, lastLevelSection.position.z), Quaternion.Euler(270, 0, 0)) as GameObject;
+        GameObject section = Instantiate(prefab, new Vector3(lastLevelSection.position.x + 2, prefab.transform.position.y, lastLevelSection.position.z), Quaternion.Euler(270, 0, 0)) as GameObject;
         section.transform.parent = transform;
         IdentifyFirstAndLast();
     }
